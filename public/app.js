@@ -7,17 +7,42 @@ document.addEventListener("click", (event) => {
   }
 
   if (event.target.dataset.type === "edit") {
-    const id = event.target.dataset.id;
+    const buttonsContainer = event.target.closest("div");
+    const originalContent = buttonsContainer.innerHTML;
 
-    if (id) {
-      const newTitle = prompt("Введите новое название");
-      if (newTitle) {
-        edit(id, newTitle).then(() => {
-          event.target.closest("li").querySelector("span").textContent =
-            newTitle;
-        });
+    const title = event.target.closest("li").querySelector("span");
+    const originalTitle = title.textContent;
+    title.setAttribute("contenteditable", "true");
+
+    const acceptButton = document.createElement("button");
+    acceptButton.className = "btn btn-success";
+    acceptButton.textContent = "Сохранить";
+
+    const cancelButton = document.createElement("button");
+    cancelButton.className = "btn btn-danger";
+    cancelButton.textContent = "Отменить";
+
+    buttonsContainer.replaceChildren(acceptButton, cancelButton);
+
+    const id = event.target.dataset.id;
+    title.contenteditable = "true";
+
+    buttonsContainer.addEventListener("click", (event) => {
+      if (event.target === acceptButton) {
+        newTitle = title.textContent;
+
+        if (newTitle !== originalTitle) {
+          edit(id, newTitle);
+        }
+
+        title.setAttribute("contenteditable", "false");
+        buttonsContainer.innerHTML = originalContent;
+      } else if (event.target === cancelButton) {
+        title.textContent = originalTitle;
+        title.setAttribute("contenteditable", "false");
+        buttonsContainer.innerHTML = originalContent;
       }
-    }
+    });
   }
 });
 
